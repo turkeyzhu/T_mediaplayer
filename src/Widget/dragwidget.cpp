@@ -48,33 +48,72 @@
 **
 ****************************************************************************/
 
-#ifndef DRAGWIDGET_H
-#define DRAGWIDGET_H
+#include <QtWidgets>
 
-#include <QWidget>
-#include <QListWidget>
+#include "dragwidget.h"
 
-QT_BEGIN_NAMESPACE
-class QDragEnterEvent;
-class QDropEvent;
-QT_END_NAMESPACE
+QString DragWidget::staticpath="";
 
-class DragWidget : public QListWidget/*QWidget*/
+static QLabel *createDragLabel(const QString &text, QWidget *parent)
 {
-    Q_OBJECT
-public:
-    DragWidget( QWidget *parent = 0);
+    QLabel *label = new QLabel(text, parent);
+    label->setAutoFillBackground(true);
+    label->setFrameShape(QFrame::Panel);
+    label->setFrameShadow(QFrame::Raised);
+    return label;
+}
 
+static QString hotSpotMimeDataKey() { return QStringLiteral("application/x-hotspot"); }
 
-protected:
-    void dragEnterEvent(QDragEnterEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void dragMoveEvent(QDragMoveEvent *event) override;
-    static QString staticpath;
+DragWidget::DragWidget(QWidget *parent): QListWidget(parent)
+//DragWidget::DragWidget(QListWidget *parent):QListWidget(parent)
+{
+    int x = 5;
+    int y = 5;
+    setAcceptDrops(true);
+    setMinimumSize(400, 400);
+}
 
-signals:
-    void addFilePath(QString pathname);
-};
+void DragWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasText()) {
+//        qDebug()<<"------drag-file-text------"<<event->mimeData()->text();
+        staticpath=event->mimeData()->text();
 
-#endif // DRAGWIDGET_H
+        if (event->source() == this) {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+        } else {
+            event->acceptProposedAction();
+        }
+    } else {
+        event->ignore();
+    }
+}
+
+void DragWidget::dropEvent(QDropEvent *event)
+{
+//     qDebug()<<"--DragWidget::dropEvent-----------------------------------"<<event->mimeData()->text();
+//     emit(addFilePath("TEST_FILE"));
+     if(event->mimeData()->text()==staticpath) //shoot drop
+     {
+        qDebug()<<"--DragWidget::dropEvent-----------------------------------"<<staticpath;
+        staticpath=staticpath.replace("file:///","");
+        emit addFilePath(staticpath);
+     }
+
+}
+
+void DragWidget::mousePressEvent(QMouseEvent *event)
+{
+    QLabel *child = qobject_cast<QLabel*>(childAt(event->pos()));
+    if (!child)
+        return;
+
+}
+
+void DragWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+//     qDebug()<<"--DragWidget::dragMoveEvent-----------------------------------";
+//       event->acceptProposedAction();
+}
