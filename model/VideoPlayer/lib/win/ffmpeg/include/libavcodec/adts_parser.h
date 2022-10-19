@@ -1,8 +1,4 @@
 /*
- * AC-3 parser prototypes
- * Copyright (c) 2003 Fabrice Bellard
- * Copyright (c) 2003 Michael Niedermayer
- *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or
@@ -20,17 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_AC3_PARSER_H
-#define AVCODEC_AC3_PARSER_H
+#ifndef AVCODEC_ADTS_PARSER_H
+#define AVCODEC_ADTS_PARSER_H
 
 #include <stddef.h>
 #include <stdint.h>
 
+#define AV_AAC_ADTS_HEADER_SIZE 7
+
 /**
- * Extract the bitstream ID and the frame size from AC-3 data.
+ * Extract the number of samples and frames from AAC data.
+ * @param[in]  buf     pointer to AAC data buffer
+ * @param[out] samples Pointer to where number of samples is written
+ * @param[out] frames  Pointer to where number of frames is written
+ * @return Returns 0 on success, error code on failure.
  */
-int av_ac3_parse_header(const uint8_t *buf, size_t size,
-                        uint8_t *bitstream_id, uint16_t *frame_size);
+int av_adts_header_parse(const uint8_t *buf, uint32_t *samples,
+                         uint8_t *frames);
 
-
-#endif /* AVCODEC_AC3_PARSER_H */
+#endif /* AVCODEC_ADTS_PARSER_H */
